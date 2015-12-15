@@ -18,3 +18,11 @@ $ glack -channel "#random" "Token Free!"
 ```
 
 You can use several types of tokens, but the easiest is to get a personal token from the [Slack API](https://api.slack.com/web) documentation. If you want to send a message to yourself you can make a private channel or use `@{username}` as the channel name, replacing with your own username.
+
+## Install
+
+```shell
+$ go get -u github.com/get-go/glack
+$ go install github.com/get-go/glack
+# And if your go bin isn't in your path
+$ export PATH=$PATH:$GOPATH/bin
