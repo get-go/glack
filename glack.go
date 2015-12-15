@@ -1,43 +1,82 @@
-package glack
+package main
 
-import "github.com/nlopes/slack"
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"os/user"
+)
 
-// Message to send to slack
-type Message struct {
-	Channel  string
-	Username string
-	Message  string
-	Icon     string
-}
+var token = flag.String("token", "", "Token for Slack API")
+var saveToken = flag.Bool("save-token", false, "Save the slack token in ~/.glack")
+var channel = flag.String("channel", "#general", "Slack channel to send message to")
+var username = flag.String("username", "Glack", "Name of the bot user to send as")
+var icon = flag.String("icon", ":shoe:", "Emoji icon for the message")
 
-//Client has the token and slack client object
-type Client struct {
-	Token  string
-	client *slack.Client
-}
+func main() {
+	flag.Parse()
 
-//Sender sends messages to the slack API
-type Sender interface {
-	Send(message *Message) (id string, err error)
-}
-
-//Send a simple message to the specified channel
-func (c *Client) Send(message *Message) (id string, err error) {
-	p := slack.PostMessageParameters{
-		AsUser:    false,
-		Username:  message.Username,
-		IconEmoji: message.Icon,
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	id, _, err = c.client.PostMessage(message.Channel, message.Message, p)
+	if *token == "" {
+		file, err := os.Open(usr.HomeDir + "/.glack")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Token was not set.\n%+v\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
 
-	return id, err
-}
+		var lines []string
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+		}
 
-//New creates a new Client object
-func New(t string) Client {
-	return Client{
-		Token:  t,
-		client: slack.New(t),
+		if len(lines) <= 0 {
+			fmt.Fprintln(os.Stderr, "Token was not set. (b)")
+			os.Exit(1)
+		}
+		*token = string(lines[0])
 	}
+
+	if *saveToken {
+		file, err := os.Create(usr.HomeDir + "/.glack")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Token was not saved.\n%+v\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+
+		w := bufio.NewWriter(file)
+		fmt.Fprintln(w, *token)
+		err = w.Flush()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Token was not saved.\n%+v\n", err)
+			os.Exit(1)
+		}
+		fmt.Fprintln(os.Stdout, "Token was saved.")
+	}
+
+	if flag.NArg() < 1 && *saveToken {
+		return
+	} else if flag.NArg() < 1 {
+		fmt.Fprintln(os.Stderr, "No message text provided.")
+		os.Exit(1)
+	}
+
+	c := New(*token)
+	m := Message{Channel: *channel, Message: flag.Arg(0), Username: *username, Icon: *icon}
+
+	id, err := c.Send(&m)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Send Command Failed:\n%v\n", err)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stdout, "Glack Message sent! Id: %v\n", id)
+	os.Exit(0)
 }
