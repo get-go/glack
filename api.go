@@ -18,20 +18,20 @@ type Client struct {
 
 //Sender sends messages to the slack API
 type Sender interface {
-	Send(message *Message) (id string, err error)
+	Send(message *Message) (channelID, messageID string, err error)
 }
 
 //Send a simple message to the specified channel
-func (c *Client) Send(message *Message) (id string, err error) {
+func (c *Client) Send(message *Message) (channelID, messageID string, err error) {
 	p := slack.PostMessageParameters{
 		AsUser:    false,
 		Username:  message.Username,
 		IconEmoji: message.Icon,
 	}
 
-	id, _, err = c.client.PostMessage(message.Channel, message.Message, p)
+	channelID, messageID, err = c.client.PostMessage(message.Channel, message.Message, p)
 
-	return id, err
+	return
 }
 
 //New creates a new Client object

@@ -8,7 +8,6 @@ import (
 	"os/user"
 )
 
-var version = "1.0.0"
 var showVersion = flag.Bool("version", false, "Show the version ("+version+")")
 var token = flag.String("token", "", "Token for Slack API")
 var saveToken = flag.Bool("save-token", false, "Save the slack token in ~/.glack")
@@ -76,12 +75,12 @@ func main() {
 	c := New(*token)
 	s := func(channel, message, username, icon string) {
 		m := Message{Channel: channel, Message: message, Username: username, Icon: icon}
-		id, err := c.Send(&m)
+		channelID, messageID, err := c.Send(&m)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Send Command Failed:\n%v\n", err)
 			os.Exit(1)
 		}
-		fmt.Fprintf(os.Stdout, "Glack Message sent! Id: %v\n", id)
+		fmt.Fprintf(os.Stdout, "Glack Message sent! Channel ID: %v Message ID: %v\n", channelID, messageID)
 	}
 
 	if flag.NArg() >= 1 {
