@@ -37,7 +37,7 @@ You can use several types of tokens, but the easiest is to get a personal token 
 
 ```shell
 $ go get -u github.com/get-go/glack
-$ go install github.com/get-go/glack
+$ go install github.com/get-go/glack/...
 # And if your go bin isn't in your path
 $ export PATH=$PATH:$GOPATH/bin
 ```
