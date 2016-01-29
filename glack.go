@@ -6,6 +6,9 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// Version of the glack SDK
+var Version = "1.0.5"
+
 // Message to send to slack
 type Message struct {
 	Channel  string
