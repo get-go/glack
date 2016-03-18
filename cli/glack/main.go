@@ -85,25 +85,9 @@ func main() {
 	}
 
 	c := glack.New(*token)
-	s := func(channel, message, username, icon string) {
-		m := glack.Message{Channel: channel, Message: message, Username: username, Icon: icon}
-		_, msgID, err := c.Send(&m)
-		if err != nil {
-			if !*silent {
-				fmt.Fprintf(os.Stderr, "Send Command Failed:\n%v\n", err)
-			}
-			os.Exit(1)
-		}
-
-		if !*silent && !*quiet {
-			fmt.Fprintf(os.Stdout, "Glack Message sent! Id: %v\n", msgID)
-		} else if !*silent {
-			fmt.Fprintln(os.Stdout, msgID)
-		}
-	}
 
 	if flag.NArg() >= 1 {
-		s(*channel, flag.Arg(0), *username, *icon)
+		sendMessage(&c, *channel, flag.Arg(0), *username, *icon)
 	} else {
 		//read from stdin
 		scanner := bufio.NewScanner(os.Stdin)
@@ -111,10 +95,27 @@ func main() {
 			// Account for empty lines, for now just ignore them
 			text := scanner.Text()
 			if len(text) > 0 {
-				s(*channel, scanner.Text(), *username, *icon)
+				sendMessage(&c, *channel, scanner.Text(), *username, *icon)
 			}
 		}
 	}
 
 	os.Exit(0)
+}
+
+func sendMessage(client *glack.Client, channel, message, username, icon string) {
+	m := glack.Message{Channel: channel, Message: message, Username: username, Icon: icon}
+	_, msgID, err := client.Send(&m)
+	if err != nil {
+		if !*silent {
+			fmt.Fprintf(os.Stderr, "Send Command Failed:\n%v\n", err)
+		}
+		os.Exit(1)
+	}
+
+	if !*silent && !*quiet {
+		fmt.Fprintf(os.Stdout, "Glack Message sent! Id: %v\n", msgID)
+	} else if !*silent {
+		fmt.Fprintln(os.Stdout, msgID)
+	}
 }
