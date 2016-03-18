@@ -16,6 +16,7 @@ var saveToken = flag.Bool("save-token", false, "Save the slack token in ~/.glack
 var channel = flag.String("channel", "#general", "Slack channel to send message to")
 var username = flag.String("username", "Glack", "Name of the bot user to send as")
 var icon = flag.String("icon", ":shoe:", "Emoji icon for the message")
+var filename = flag.String("upload-file", "", "Upload a file if specified.")
 var quiet = flag.Bool("quiet", false, "Quiet the output to a minimum, just return message ID and errors")
 var silent = flag.Bool("silent", false, "Silence all output, including message ID's and errors")
 
@@ -86,7 +87,9 @@ func main() {
 
 	c := glack.New(*token)
 
-	if flag.NArg() >= 1 {
+	if *filename != "" {
+		c.UploadFile(*channel, *filename)
+	} else if flag.NArg() >= 1 {
 		sendMessage(&c, *channel, flag.Arg(0), *username, *icon)
 	} else {
 		//read from stdin
