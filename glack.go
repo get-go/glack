@@ -47,6 +47,15 @@ func (c *Client) Send(message *Message) (channelID, messageID string, err error)
 	return
 }
 
+func (c *Client) UploadFile(channel, filename string) (file *slack.File, err error) {
+	fileUploadParameters := slack.FileUploadParameters{
+		File:     filename,
+		Channels: []string{channel},
+	}
+
+	return c.client.UploadFile(fileUploadParameters)
+}
+
 //New creates a new Client object
 func New(t string) Client {
 	return Client{
