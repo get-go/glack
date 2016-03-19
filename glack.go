@@ -7,7 +7,7 @@ import (
 )
 
 // Version of the glack SDK
-var Version = "1.0.5"
+var Version = "1.0.6"
 
 // Message to send to slack
 type Message struct {
