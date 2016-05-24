@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -18,6 +19,7 @@ var username = flag.String("username", "Glack", "Name of the bot user to send as
 var icon = flag.String("icon", ":shoe:", "Emoji icon for the message")
 var quiet = flag.Bool("quiet", false, "Quiet the output to a minimum, just return message ID and errors")
 var silent = flag.Bool("silent", false, "Silence all output, including message ID's and errors")
+var isJSON = flag.Bool("json", false, `Input is JSON, example: {"channel":"@random","message":"hello world","username":"Glack","icon":":shoe:"}`)
 
 func getHomeDir() (dir string, err error) {
 	usr, err := user.Current()
@@ -87,6 +89,10 @@ func main() {
 	c := glack.New(*token)
 	s := func(channel, message, username, icon string) {
 		m := glack.Message{Channel: channel, Message: message, Username: username, Icon: icon}
+		if *isJSON {
+			fmt.Println("JSON MODE")
+			json.Unmarshal([]byte(message), &m)
+		}
 		_, msgID, err := c.Send(&m)
 		if err != nil {
 			if !*silent {
