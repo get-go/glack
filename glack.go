@@ -11,10 +11,10 @@ var Version = "1.0.6"
 
 // Message to send to slack
 type Message struct {
-	Channel  string
-	Username string
-	Message  string
-	Icon     string
+	Channel  string `json:"channel"`
+	Username string `json:"username"`
+	Message  string `json:"message"`
+	Icon     string `json:"icon"`
 }
 
 //Client has the token and slack client object
