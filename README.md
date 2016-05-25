@@ -29,6 +29,10 @@ $ cat test.txt | glack
 Glack Message sent! Channel ID: XXXXXXXXXX Message ID: 145027XXXX.XXXXXXXXXX
 Glack Message sent! Channel ID: XXXXXXXXXX Message ID: 145027XXXX.XXXXXXXXXX
 
+# Parse message object as JSON
+$ glack -json '{"channel":"#random","icon":":arrow:","username":"The Arrow","message":"Watch Out"}'
+Glack Message sent! Channel ID: XXXXXXXXXX Message ID: 145027XXXX.XXXXXXXXXX
+
 ```
 
 You can use several types of tokens, but the easiest is to get a personal token from the [Slack API](https://api.slack.com/web) documentation. If you want to send a message to yourself you can make a private channel or use `@{username}` as the channel name, replacing with your own username.
