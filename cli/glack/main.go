@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strings"
 
 	"github.com/get-go/glack"
 )
@@ -21,6 +22,7 @@ var filename = flag.String("upload-file", "", "Upload a file if specified.")
 var quiet = flag.Bool("quiet", false, "Quiet the output to a minimum, just return message ID and errors")
 var silent = flag.Bool("silent", false, "Silence all output, including message ID's and errors")
 var isJSON = flag.Bool("json", false, `Input is JSON, example: {"channel":"@random","message":"hello world","username":"Glack","icon":":shoe:"}`)
+var dryRun = flag.Bool("dry-run", false, "Instead of sending request to slack, output request to the console.")
 
 func getHomeDir() (dir string, err error) {
 	usr, err := user.Current()
@@ -111,7 +113,21 @@ func main() {
 func sendMessage(client *glack.Client, channel, message, username, icon string) {
 	m := glack.Message{Channel: channel, Message: message, Username: username, Icon: icon}
 	if *isJSON {
+		//unmarshal stdin to the message object if possible
 		json.Unmarshal([]byte(message), &m)
+	}
+	if *dryRun {
+		var output string
+		if *isJSON {
+			//format dryRun output as json if the flag exists
+			outBytes, _ := json.Marshal(&m)
+			output = string(outBytes)
+		} else {
+			output = strings.TrimPrefix(fmt.Sprintf("%#v", &m), "&glack.Message")
+		}
+		fmt.Fprintln(os.Stdout, output)
+
+		os.Exit(0)
 	}
 	_, msgID, err := client.Send(&m)
 	if err != nil {
